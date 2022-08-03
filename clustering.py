@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 import importlib
 import argparse
-import facenet.src.facenet
+import facefacenetnet.src.facenet
 import os
 import math
 def face_distance(face_encodings, face_to_compare):
@@ -130,7 +130,7 @@ def _chinese_whispers(encoding_list, threshold=0.75, iterations=20):
 
     return sorted_clusters
 
-def cluster_facial_encodings(facial_encodings):
+def cluster_facial_encodings(facial_encodings, threshold=0.75, iterations=20):
     """ Cluster facial encodings
 
         Intended to be an optional switch for different clustering algorithms, as of right now
@@ -150,7 +150,7 @@ def cluster_facial_encodings(facial_encodings):
         return []
 
     # Only use the chinese whispers algorithm for now
-    sorted_clusters = _chinese_whispers(facial_encodings.items())
+    sorted_clusters = _chinese_whispers(facial_encodings.items(), threshold=0.75, iterations=20)
     return sorted_clusters
 
 def compute_facial_encodings(sess,images_placeholder,embeddings,phase_train_placeholder,image_size,
@@ -241,7 +241,7 @@ def main(args):
             emb_array = np.zeros((nrof_images, embedding_size))
             facial_encodings = compute_facial_encodings(sess,images_placeholder,embeddings,phase_train_placeholder,image_size,
                 embedding_size,nrof_images,nrof_batches,emb_array,args.batch_size,image_paths)
-            sorted_clusters = cluster_facial_encodings(facial_encodings)
+            sorted_clusters = cluster_facial_encodings(facial_encodings, threshold=args.threshold, iterations=args.iterations)
             num_cluster = len(sorted_clusters)
                 
             # Copy image files to cluster folders
@@ -259,6 +259,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Get a shape mesh (t-pose)')
     parser.add_argument('--model_dir', type=str, help='model dir', required=True)
     parser.add_argument('--batch_size', type=int, help='batch size', required=30)
+
+    parser.add_argument('--threshold', type=float, help='threshold', required=True)
+    parser.add_argument('--iterations', type=float, help='iterations', required=True)
+
     parser.add_argument('--input', type=str, help='Input dir of images', required=True)
     parser.add_argument('--output', type=str, help='Output dir of clusters', required=True)
     args = parser.parse_args()
