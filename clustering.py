@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 import importlib
 import argparse
-import facenet.src.facenet
+import facenet.src.facenet as facenet
 import os
 import math
 def face_distance(face_encodings, face_to_compare):
